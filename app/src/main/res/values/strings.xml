@@ -8,6 +8,13 @@
     <string name="use_walking_grade_factor">Use Walking Grade Factor</string>
     <string name="reduce_points_to">Reduce Points to</string>
     <string name="points">points</string>
+    <string name="route_to_waypoints">Convert Route to Waypoints</string>
+    <string name="set_proximity">set Proximity of converted Routepoints</string>
+    <string name="min_proximity">min. Proximity</string>
+    <string name="max_proximity">max. Proximity</string>
+    <string name="meter">m</string>
+    <string name="percent">%</string>
+    <string name="proximity_ratio">Proximity ratio</string>
     <string name="no_permission">No permission to read files.</string>
     <string name="no_server">Server could not be started</string>
     <string name="serving_from">Serving from: %1$s\n%2$s</string>

@@ -28,14 +28,16 @@ public class WebServer extends NanoHTTPD {
     private File mRootDir;
     private File mCacheDir;
     private Gpx2FitOptions mGpx2FitOptions;
+    private Gpx.Options mGpxOptions;
 
-    public WebServer(File rootDir, File cacheDir, int port, Gpx2FitOptions options)
+    public WebServer(File rootDir, File cacheDir, int port, Gpx2FitOptions options, Gpx.Options gpxOptions)
             throws IOException, NoSuchAlgorithmException {
 
         super(port);
         mRootDir = rootDir;
         mCacheDir = cacheDir;
         mGpx2FitOptions = options;
+        mGpxOptions = gpxOptions;
     }
 
     private static final String MIME_JSON = "application/json";
@@ -91,12 +93,9 @@ public class WebServer extends NanoHTTPD {
                         FileOutputStream out = null;
                         try {
                             in = new FileInputStream(src);
-                            Gpx.Options options = new Gpx.Options();
-                            options.setIndent(true);
-                            options.setTransformRte2Wpts(true);
                             Gpx gpx = new Gpx(courseName, in);
-                            gpx.setOptions(options);
-                            if (options.isTransformRte2Wpts()) {
+                            gpx.setOptions(mGpxOptions);
+                            if (mGpxOptions.isTransformRte2Wpts()) {
                                 gpx.rte2wpts();
                             }
                             src = new File(mCacheDir, path);

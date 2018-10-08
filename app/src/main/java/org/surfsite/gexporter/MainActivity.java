@@ -71,7 +71,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CheckBox mUseWalkingGrade;
     private CheckBox mReducePoints;
     private EditText mMaxPoints;
+    private CheckBox mConvertRte2Wpts;
+    private CheckBox mSetProximity;
+    private EditText mMinProximity;
+    private EditText mMaxProximity;
+    private EditText mProximityRatio;
     private Gpx2FitOptions mGpx2FitOptions = null;
+    private Gpx.Options mGpxOptions = null;
     File mDirectory = null;
     private NumberFormat mNumberFormat = NumberFormat.getInstance(Locale.getDefault());
     ArrayList<Uri> mUris;
@@ -200,6 +206,68 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mTextView = (TextView) findViewById(R.id.textv);
 
+        mConvertRte2Wpts = (CheckBox) findViewById(R.id.CBroute2WayPoints);
+        mConvertRte2Wpts.setOnClickListener(this);
+
+        mSetProximity = (CheckBox) findViewById(R.id.CBsetProximity);
+        mSetProximity.setOnClickListener(this);
+
+        mMinProximity = (EditText) findViewById(R.id.editMinProximity);
+        mMinProximity.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.length() > 0 && mGpxOptions != null && mSetProximity.isChecked())
+                    mGpxOptions.setMinProximity(Double.valueOf(editable.toString()));
+            }
+        });
+
+        mMaxProximity = (EditText) findViewById(R.id.editMaxProximity);
+        mMaxProximity.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.length() > 0 && mGpxOptions != null && mSetProximity.isChecked())
+                    mGpxOptions.setMaxProximity(Double.valueOf(editable.toString()));
+            }
+        });
+
+        mProximityRatio = (EditText) findViewById(R.id.editProximityRatio);
+        mProximityRatio.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.length() > 0 && mGpxOptions != null && mSetProximity.isChecked())
+                    mGpxOptions.setProximityRatio(Double.valueOf(editable.toString())/100);
+            }
+        });
     }
 
     @Override
@@ -261,30 +329,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        if (mGpx2FitOptions == null)
-            return;
-
-        switch (v.getId()) {
-            case R.id.CBforceSpeed:
-                mGpx2FitOptions.setForceSpeed(mForceSpeed.isChecked());
-                break;
-            case R.id.CBinject:
-                mGpx2FitOptions.setInjectCoursePoints(mInjectCoursePoints.isChecked());
-                break;
-            case R.id.CBreducePoints:
-                if (mReducePoints.isChecked()) {
-                    String t = mMaxPoints.getText().toString();
-                    if (t.length() > 0)
-                        mGpx2FitOptions.setMaxPoints(Integer.decode(t));
-                } else
-                    mGpx2FitOptions.setMaxPoints(0);
-                break;
-            case R.id.CBuse3D:
-                mGpx2FitOptions.setUse3dDistance(mUse3DDistance.isChecked());
-                break;
-            case R.id.CBuseWalkingGrade:
-                mGpx2FitOptions.setWalkingGrade(mUseWalkingGrade.isChecked());
-                break;
+        if (mGpx2FitOptions != null) {
+            switch (v.getId()) {
+                case R.id.CBforceSpeed:
+                    mGpx2FitOptions.setForceSpeed(mForceSpeed.isChecked());
+                    break;
+                case R.id.CBinject:
+                    mGpx2FitOptions.setInjectCoursePoints(mInjectCoursePoints.isChecked());
+                    break;
+                case R.id.CBreducePoints:
+                    if (mReducePoints.isChecked()) {
+                        String t = mMaxPoints.getText().toString();
+                        if (t.length() > 0)
+                            mGpx2FitOptions.setMaxPoints(Integer.decode(t));
+                    } else
+                        mGpx2FitOptions.setMaxPoints(0);
+                    break;
+                case R.id.CBuse3D:
+                    mGpx2FitOptions.setUse3dDistance(mUse3DDistance.isChecked());
+                    break;
+                case R.id.CBuseWalkingGrade:
+                    mGpx2FitOptions.setWalkingGrade(mUseWalkingGrade.isChecked());
+                    break;
+            }
+        }
+        if (mGpxOptions != null) {
+            switch (v.getId()) {
+                case R.id.CBroute2WayPoints:
+                    mGpxOptions.setTransformRte2Wpts(mConvertRte2Wpts.isChecked());
+                    break;
+                case R.id.CBsetProximity:
+                    mGpxOptions.setSetProximity(mSetProximity.isChecked());
+                    break;
+            }
         }
     }
 
@@ -353,11 +430,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return new Gpx2FitOptions();
     }
 
+    public void saveGpxOptions(Gpx.Options options) {
+        Application app = getApplication();
+        SharedPreferences mPrefs=app.getSharedPreferences(app.getApplicationInfo().name, Context.MODE_PRIVATE);
+        SharedPreferences.Editor ed=mPrefs.edit();
+        Gson gson = new Gson();
+        ed.putString(options.getClass().getName(), gson.toJson(options));
+        ed.apply();
+     }
+
+    public Gpx.Options loadGpxOptions() {
+        Application app = getApplication();
+        Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
+        JsonParser parser=new JsonParser();
+        SharedPreferences mPrefs=app.getSharedPreferences(app.getApplicationInfo().name, Context.MODE_PRIVATE);
+        String json = mPrefs.getString(Gpx.Options.class.getName(), null);
+        Gpx.Options opts = null;
+        if (json != null && json.length() > 0)
+            opts = gson.fromJson(parser.parse(json).getAsJsonObject(), Gpx.Options.class);
+        if (opts != null)
+            return opts;
+        else
+            return new Gpx.Options();
+    }
 
     @Override
     public void onPause() {
         super.onPause();
         save(mGpx2FitOptions);
+        saveGpxOptions(mGpxOptions);
     }
 
     @Override
@@ -365,6 +466,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onResume();  // Always call the superclass method first
 
         mGpx2FitOptions = load();
+        mGpxOptions = loadGpxOptions();
 
         setSpeedText(mGpx2FitOptions.getSpeedUnit());
 
@@ -380,6 +482,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mMaxPoints.setText(String.format(Locale.getDefault(), "%d", maxp));
 
         mSpeedUnit.setSelection(mGpx2FitOptions.getSpeedUnit());
+
+        mConvertRte2Wpts.setChecked(mGpxOptions.isTransformRte2Wpts());
+        mSetProximity.setChecked(mGpxOptions.isSetProximity());
+
+        int minProx = (int)mGpxOptions.getMinProximity();
+        if (minProx == 0) {
+            minProx = 20;
+        }
+        mMinProximity.setText(String.format(Locale.getDefault(),"%d",minProx));
+
+        int maxProx = (int)mGpxOptions.getMaxProximity();
+        if (maxProx == 0) {
+            maxProx = 100;
+        }
+        mMaxProximity.setText(String.format(Locale.getDefault(),"%d",maxProx));
+
+        int proxRatio = (int)(mGpxOptions.getProximityRatio()*100);
+        if (proxRatio == 0) {
+            proxRatio = 50;
+        }
+        mProximityRatio.setText(String.format(Locale.getDefault(),"%d",proxRatio));
         // Get intent, action and MIME type
         Intent intent = getIntent();
         String action = intent.getAction();
@@ -534,7 +657,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         try {
-            server = new WebServer(new File(rootdir), getCacheDir(), 22222, mGpx2FitOptions);
+            server = new WebServer(new File(rootdir), getCacheDir(), 22222, mGpx2FitOptions, mGpxOptions);
             server.start();
             Log.info("Web server initialized.");
         } catch (IOException | NoSuchAlgorithmException e) {

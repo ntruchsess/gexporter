@@ -138,16 +138,138 @@
         android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="parent" />
 
+    <CheckBox
+        android:id="@+id/CBroute2WayPoints"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:text="@string/route_to_waypoints"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/CBreducePoints" />
+
+    <CheckBox
+        android:id="@+id/CBsetProximity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:text="@string/set_proximity"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/CBroute2WayPoints" />
+
+    <EditText
+        android:id="@+id/editMinProximity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:ems="4"
+        android:minEms="1"
+        android:maxEms="5"
+        android:maxLength="5"
+        android:inputType="number"
+        app:layout_constraintTop_toBottomOf="@+id/CBsetProximity"
+        app:layout_constraintLeft_toRightOf="@+id/textViewMaxProximity"
+        app:layout_constraintRight_toLeftOf="@+id/textViewMinProximityM"
+        android:layout_marginRight="8dp" />
+
+    <TextView
+        android:id="@+id/textViewMinProximity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/min_proximity"
+        app:layout_constraintLeft_toLeftOf="@+id/CBsetProximity"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editMinProximity"
+        android:layout_marginRight="8dp" />
+
         <TextView
-            android:id="@+id/textv"
-            android:layout_width="0dp"
+            android:id="@+id/textViewMinProximityM"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/starting"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@+id/editPointNumber"
-            android:layout_marginRight="8dp"
-            app:layout_constraintRight_toRightOf="parent"
+            android:text="@string/meter"
+            app:layout_constraintRight_toRightOf="@+id/textView"
+            app:layout_constraintBaseline_toBaselineOf="@+id/editMinProximity"
+            android:layout_marginRight="8dp" />
+
+    <EditText
+        android:id="@+id/editMaxProximity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:ems="4"
+        android:minEms="1"
+        android:maxEms="5"
+        android:maxLength="5"
+        android:inputType="number"
+        app:layout_constraintTop_toBottomOf="@+id/editMinProximity"
+        app:layout_constraintLeft_toRightOf="@+id/textViewMaxProximity"
+        app:layout_constraintRight_toLeftOf="@+id/textViewMaxProximityM"
+        android:layout_marginRight="8dp" />
+
+    <TextView
+        android:id="@+id/textViewMaxProximity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/max_proximity"
+        app:layout_constraintLeft_toLeftOf="@+id/textViewMinProximity"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editMaxProximity"
+        android:layout_marginRight="8dp" />
+
+        <TextView
+            android:id="@+id/textViewMaxProximityM"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/meter"
+            app:layout_constraintRight_toRightOf="@+id/textView"
+            app:layout_constraintBaseline_toBaselineOf="@+id/editMaxProximity"
+            android:layout_marginRight="8dp" />
+
+        <EditText
+            android:id="@+id/editProximityRatio"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
             android:layout_marginLeft="8dp"
-            app:layout_constraintLeft_toLeftOf="parent" />
-</android.support.constraint.ConstraintLayout>
+            android:layout_marginTop="8dp"
+            android:ems="4"
+            android:minEms="1"
+            android:maxEms="5"
+            android:maxLength="3"
+            android:inputType="number"
+            app:layout_constraintLeft_toRightOf="@+id/textViewMaxProximity"
+            app:layout_constraintTop_toBottomOf="@+id/editMaxProximity"
+            app:layout_constraintRight_toLeftOf="@+id/textViewProximityPercent" />
+
+    <TextView
+        android:id="@+id/textViewProximityRatio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/proximity_ratio"
+        app:layout_constraintLeft_toLeftOf="@+id/textViewMaxProximity"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editProximityRatio"
+        android:layout_marginRight="8dp" />
+
+        <TextView
+            android:id="@+id/textViewProximityPercent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/percent"
+            app:layout_constraintLeft_toLeftOf="@+id/textViewMaxProximityM"
+            app:layout_constraintBaseline_toBaselineOf="@+id/editProximityRatio"
+            android:layout_marginRight="8dp" />
+
+    <TextView
+        android:id="@+id/textv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/starting"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/editProximityRatio"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
 </ScrollView>

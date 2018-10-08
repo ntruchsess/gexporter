@@ -42,10 +42,11 @@ public class Gpx {
 
         boolean useExtensions;
         boolean transformRte2Wpts;
+        boolean setProximity;
         double minProximity;
         double maxProximity;
         double proximityRatio;
-        boolean indent;
+        boolean indent = true;
 
         public boolean isUseExtensions() {
             return useExtensions;
@@ -61,6 +62,14 @@ public class Gpx {
 
         public void setTransformRte2Wpts(boolean transformRte2Wpts) {
             this.transformRte2Wpts = transformRte2Wpts;
+        }
+
+        public boolean isSetProximity() {
+            return setProximity;
+        }
+
+        public void setSetProximity(boolean setProximity) {
+            this.setProximity = setProximity;
         }
 
         public double getMinProximity() {
@@ -1064,18 +1073,19 @@ public class Gpx {
 
     public void rte2wpts() {
         for (Route rte : routes) {
-            for (RtePoint rtept : rte.getRtePoints()) {
+            RtePoint lastPt = null;
+            for (RtePoint rtePt : rte.getRtePoints()) {
                 WptPoint newWpt = new WptPoint();
-                newWpt.setLat(rtept.getLat());
-                newWpt.setLon(rtept.getLon());
-                newWpt.setEle(rtept.getEle());
-                newWpt.setTime(rtept.getTime());
-                newWpt.setName(rtept.getName());
-                newWpt.setDesc(rtept.getDesc());
-                newWpt.setType(rtept.getType());
-                OsmAndExtensions osmAndExtensions = rtept.getExtensions();
+                newWpt.setLat(rtePt.getLat());
+                newWpt.setLon(rtePt.getLon());
+                newWpt.setEle(rtePt.getEle());
+                newWpt.setTime(rtePt.getTime());
+                newWpt.setName(rtePt.getName());
+                newWpt.setDesc(rtePt.getDesc());
+                newWpt.setType(rtePt.getType());
+                OsmAndExtensions osmAndExtensions = rtePt.getExtensions();
                 if (osmAndExtensions == null) {
-                    newWpt.setSym(rtept.getSym());
+                    newWpt.setSym(rtePt.getSym());
                 } else {
                     String turn = osmAndExtensions.getTurn();
                     if (turn != null) {
@@ -1151,13 +1161,27 @@ public class Gpx {
                         }
                     }
                 }
-                GarminExtensions garminExtensions = new GarminExtensions();
-                garminExtensions.setProximity(50.0);
-                newWpt.setExtensions(garminExtensions);
+                if (lastPt != null) {
+                    double dist = rtePt.distance(lastPt);
+                    double prox = dist * options.proximityRatio;
+                    if (prox < options.minProximity) {
+                        prox = options.minProximity;
+                    }
+                    if (prox > dist) {
+                        prox = dist;
+                    }
+                    if (prox > options.maxProximity) {
+                        prox = options.maxProximity;
+                    }
+                    GarminExtensions garminExtensions = new GarminExtensions();
+                    garminExtensions.setProximity(prox);
+                    newWpt.setExtensions(garminExtensions);
+                    options.useExtensions = true;
+                }
+                lastPt = rtePt;
                 if (newWpt.isValid()) {
                     wayPoints.add(newWpt);
                 }
-                options.useExtensions = true;
             }
         }
     }
