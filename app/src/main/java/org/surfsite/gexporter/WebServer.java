@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,12 +85,42 @@ public class WebServer extends NanoHTTPD {
                     src = new File(mRootDir, path);
                 } else if(path.endsWith(".gpx") || path.endsWith(".GPX")) {
                     src = new File(mRootDir, path);
-
+                    String courseName = (doLongname ? src.getName() : getCourseName(src.getName()));
                     if (doGPXonly) {
+                        FileInputStream in = null;
+                        FileOutputStream out = null;
+                        try {
+                            in = new FileInputStream(src);
+                            Gpx.Options options = new Gpx.Options();
+                            options.setIndent(true);
+                            options.setTransformRte2Wpts(true);
+                            Gpx gpx = new Gpx(courseName, in);
+                            gpx.setOptions(options);
+                            if (options.isTransformRte2Wpts()) {
+                                gpx.rte2wpts();
+                            }
+                            src = new File(mCacheDir, path);
+                            out = new FileOutputStream(src);
+                            Log.warn("Generating {}", src.getAbsolutePath());
+                            gpx.writeGpx(out);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            if (in != null) {
+                                try {
+                                    in.close();
+                                } catch (IOException ioe) {
+                                }
+                            }
+                            if (out != null) {
+                                try {
+                                    out.close();
+                                } catch (IOException ioe) {
+                                }
+                            }
+                        }
                         mime_type = MIME_GPX;
                     } else {
-                        String courseName = (doLongname ? src.getName() : getCourseName(src.getName()));
-
                         Gpx2Fit loader = new Gpx2Fit(courseName, new FileInputStream(src), mGpx2FitOptions);
                         src = new File(mCacheDir, path + ".fit");
                         Log.warn("Generating {}", src.getAbsolutePath());
@@ -166,7 +197,24 @@ public class WebServer extends NanoHTTPD {
                     e.printStackTrace();
                 }
                 String courseName = (doLongname ? aFilelist : getCourseName(aFilelist));
-
+                if (aFilelist.endsWith(".gpx") || aFilelist.endsWith(".GPX")) {
+                    File src = new File(mRootDir,aFilelist);
+                    FileInputStream in = null;
+                    try {
+                        in = new FileInputStream(src);
+                        Gpx gpx = new Gpx(courseName, in);
+                        courseName = gpx.getName();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        if (in != null) {
+                            try {
+                                in.close();
+                            } catch (IOException ioe) {
+                            }
+                        }
+                    }
+                }
                 ret += String.format("{ \"title\": \"%s\", \"url\": \"%s\"  },\n", courseName, url);
             }
         }
